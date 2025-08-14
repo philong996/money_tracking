@@ -1,0 +1,25 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+.env
+./money-tracker-backend/money_tracker.db
+
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# Logs
+*.log
+
+# OS-specific
+.DS_Store
