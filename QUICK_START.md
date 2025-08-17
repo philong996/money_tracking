@@ -10,11 +10,6 @@ chmod +x start.sh
 ./start.sh
 ```
 
-**For Windows:**
-```bash
-start.bat
-```
-
 ### Option 2: Manual Setup
 
 **Backend:**
