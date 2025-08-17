@@ -9,11 +9,11 @@ from datetime import datetime, timedelta
 from typing import Optional, List
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-import sqlite3
+import os
 
 # Database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./money_tracker.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost/money_tracker")
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
