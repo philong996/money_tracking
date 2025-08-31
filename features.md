@@ -26,6 +26,17 @@
 - [x] **Recent Transactions**: Last 5 transactions with quick overview
 - [x] **Monthly Overview**: Current month's income, expenses, and net amount
 
+#### � **Wallet Management**
+- [ ] **Multiple Wallets**: Create and manage multiple wallets (cash, bank accounts, credit cards)
+- [ ] **Wallet Types**: Support different wallet types with custom icons and colors
+- [ ] **Wallet Balance Tracking**: Individual balance tracking per wallet
+- [ ] **Transaction Assignment**: Assign transactions to specific wallets
+- [ ] **Wallet Transfers**: Transfer money between wallets with proper tracking
+- [ ] **Wallet Analytics**: Per-wallet spending analysis and reports
+- [ ] **Default Wallet**: Set preferred default wallet for new transactions
+- [ ] **Wallet History**: View transaction history filtered by wallet
+- [ ] **Balance Reconciliation**: Manual balance adjustment for discrepancies
+
 ---
 
 ### 🟡 **PRIORITY 2 - ENHANCED FEATURES (IMPLEMENTED)**
@@ -64,7 +75,7 @@
 - [ ] **Custom Date Ranges**: Filter exports by specific date ranges
 - [ ] **Scheduled Reports**: Automatic report generation and delivery
 
-#### 👥 **Group & Collaboration Features**
+#### �👥 **Group & Collaboration Features**
 - [ ] **Group Creation**: Create expense sharing groups
 - [ ] **Group Invitations**: Invite members with unique codes
 - [ ] **Shared Expenses**: Split bills and track group spending
