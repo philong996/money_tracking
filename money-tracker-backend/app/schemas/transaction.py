@@ -9,6 +9,7 @@ class TransactionCreate(BaseModel):
     description: str
     transaction_type: str  # "income" or "expense"
     date: datetime
+    wallet_id: Optional[int] = None  # Allow null for backward compatibility
 
 class TransactionUpdate(BaseModel):
     """Schema for transaction update."""
@@ -17,6 +18,7 @@ class TransactionUpdate(BaseModel):
     description: Optional[str] = None
     transaction_type: Optional[str] = None
     date: Optional[datetime] = None
+    wallet_id: Optional[int] = None
 
 class TransactionResponse(BaseModel):
     """Schema for transaction response."""
@@ -27,6 +29,7 @@ class TransactionResponse(BaseModel):
     transaction_type: str
     date: datetime
     created_at: datetime
+    wallet_id: Optional[int] = None
     
     class Config:
         from_attributes = True

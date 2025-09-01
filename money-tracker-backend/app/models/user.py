@@ -15,3 +15,4 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     transactions = relationship("Transaction", back_populates="owner")
+    wallets = relationship("Wallet", back_populates="owner")

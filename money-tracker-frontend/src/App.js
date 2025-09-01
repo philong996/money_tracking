@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Transactions from './components/Transactions';
+import Wallets from './components/Wallets';
 import Analytics from './components/Analytics';
 import './App.css';
 
@@ -30,6 +31,7 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/transactions" element={<Transactions />} />
+                      <Route path="/wallets" element={<Wallets />} />
                       <Route path="/analytics" element={<Analytics />} />
                       <Route path="*" element={<Navigate to="/" />} />
                     </Routes>

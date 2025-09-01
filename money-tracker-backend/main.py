@@ -18,7 +18,7 @@ import uvicorn
 
 from app.core.config import settings
 from app.core.database import create_tables
-from app.api import auth, transactions
+from app.api import auth, transactions, wallets
 
 # Create FastAPI app
 app = FastAPI(
@@ -38,6 +38,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, tags=["authentication"])
 app.include_router(transactions.router, tags=["transactions"])
+app.include_router(wallets.router, tags=["wallets"])
 
 # Create database tables
 create_tables()

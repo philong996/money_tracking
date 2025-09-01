@@ -6,6 +6,7 @@ from datetime import datetime
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.transaction import TransactionCreate, TransactionUpdate
+from app.services.wallet_service import WalletService
 
 class TransactionService:
     """Service for transaction-related operations."""
@@ -13,12 +14,32 @@ class TransactionService:
     @staticmethod
     def create_transaction(db: Session, transaction: TransactionCreate, user: User) -> Transaction:
         """Create a new transaction."""
+        # If no wallet specified, use default wallet
+        wallet_id = transaction.wallet_id
+        if not wallet_id:
+            default_wallet = WalletService.get_default_wallet(db, user)
+            if default_wallet:
+                wallet_id = default_wallet.id
+        
         db_transaction = Transaction(
-            **transaction.dict(),
+            amount=transaction.amount,
+            category=transaction.category,
+            description=transaction.description,
+            transaction_type=transaction.transaction_type,
+            date=transaction.date,
+            wallet_id=wallet_id,
             user_id=user.id
         )
+        
         db.add(db_transaction)
         db.commit()
+        
+        # Update wallet balance
+        if wallet_id:
+            WalletService.update_wallet_balance(
+                db, wallet_id, transaction.amount, transaction.transaction_type
+            )
+        
         db.refresh(db_transaction)
         return db_transaction
     
@@ -57,10 +78,31 @@ class TransactionService:
         """Update a transaction."""
         transaction = TransactionService.get_transaction(db, transaction_id, user)
         
+        # Store old values for wallet balance adjustment
+        old_amount = transaction.amount
+        old_type = transaction.transaction_type
+        old_wallet_id = transaction.wallet_id
+        
+        # Update transaction fields
         for field, value in transaction_update.dict(exclude_unset=True).items():
             setattr(transaction, field, value)
         
         db.commit()
+        
+        # Update wallet balances
+        if old_wallet_id:
+            # Reverse old transaction effect
+            reverse_amount = old_amount
+            reverse_type = "expense" if old_type == "income" else "income"
+            WalletService.update_wallet_balance(db, old_wallet_id, reverse_amount, reverse_type)
+        
+        # Apply new transaction effect
+        new_wallet_id = transaction.wallet_id
+        if new_wallet_id:
+            WalletService.update_wallet_balance(
+                db, new_wallet_id, transaction.amount, transaction.transaction_type
+            )
+        
         db.refresh(transaction)
         return transaction
     
@@ -68,6 +110,13 @@ class TransactionService:
     def delete_transaction(db: Session, transaction_id: int, user: User) -> dict:
         """Delete a transaction."""
         transaction = TransactionService.get_transaction(db, transaction_id, user)
+        
+        # Update wallet balance (reverse the transaction)
+        if transaction.wallet_id:
+            reverse_type = "expense" if transaction.transaction_type == "income" else "income"
+            WalletService.update_wallet_balance(
+                db, transaction.wallet_id, transaction.amount, reverse_type
+            )
         
         db.delete(transaction)
         db.commit()

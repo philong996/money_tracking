@@ -3,6 +3,7 @@ import axios from 'axios';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
+  const [wallets, setWallets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -12,12 +13,14 @@ function Transactions() {
     description: '',
     transaction_type: 'expense',
     date: new Date().toISOString().split('T')[0],
+    wallet_id: '',
   });
 
   useEffect(() => {
     fetchTransactions();
     fetchCategories();
-  }, []);
+    fetchWallets();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchTransactions = async () => {
     try {
@@ -25,6 +28,21 @@ function Transactions() {
       setTransactions(response.data);
     } catch (error) {
       console.error('Error fetching transactions:', error);
+    }
+  };
+
+  const fetchWallets = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/wallets');
+      setWallets(response.data);
+      
+      // Set default wallet if available
+      const defaultWallet = response.data.find(wallet => wallet.is_default);
+      if (defaultWallet && !formData.wallet_id) {
+        setFormData(prev => ({ ...prev, wallet_id: defaultWallet.id.toString() }));
+      }
+    } catch (error) {
+      console.error('Error fetching wallets:', error);
     }
   };
 
@@ -44,6 +62,7 @@ function Transactions() {
         ...formData,
         amount: parseFloat(formData.amount),
         date: new Date(formData.date).toISOString(),
+        wallet_id: formData.wallet_id ? parseInt(formData.wallet_id) : null,
       };
 
       if (editingTransaction) {
@@ -59,9 +78,11 @@ function Transactions() {
         description: '',
         transaction_type: 'expense',
         date: new Date().toISOString().split('T')[0],
+        wallet_id: wallets.find(w => w.is_default)?.id.toString() || '',
       });
       setShowForm(false);
       fetchTransactions();
+      fetchWallets(); // Refresh wallets to update balances
     } catch (error) {
       console.error('Error saving transaction:', error);
     }
@@ -75,6 +96,7 @@ function Transactions() {
       description: transaction.description,
       transaction_type: transaction.transaction_type,
       date: new Date(transaction.date).toISOString().split('T')[0],
+      wallet_id: transaction.wallet_id?.toString() || '',
     });
     setShowForm(true);
   };
@@ -84,6 +106,7 @@ function Transactions() {
       try {
         await axios.delete(`http://localhost:8000/transactions/${id}`);
         fetchTransactions();
+        fetchWallets(); // Refresh wallets to update balances
       } catch (error) {
         console.error('Error deleting transaction:', error);
       }
@@ -91,10 +114,15 @@ function Transactions() {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'VND',
+      currency: 'USD',
     }).format(amount);
+  };
+
+  const getWalletName = (walletId) => {
+    const wallet = wallets.find(w => w.id === walletId);
+    return wallet ? wallet.name : 'Unknown Wallet';
   };
 
   return (
@@ -176,6 +204,22 @@ function Transactions() {
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Wallet</label>
+                  <select
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={formData.wallet_id}
+                    onChange={(e) => setFormData({ ...formData, wallet_id: e.target.value })}
+                  >
+                    <option value="">Select Wallet (Optional)</option>
+                    {wallets.map((wallet) => (
+                      <option key={wallet.id} value={wallet.id}>
+                        {wallet.name} (${wallet.balance.toFixed(2)})
+                        {wallet.is_default ? ' - Default' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
@@ -188,6 +232,7 @@ function Transactions() {
                         description: '',
                         transaction_type: 'expense',
                         date: new Date().toISOString().split('T')[0],
+                        wallet_id: wallets.find(w => w.is_default)?.id.toString() || '',
                       });
                     }}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
@@ -230,6 +275,9 @@ function Transactions() {
                       </div>
                       <div className="text-sm text-gray-500">
                         {transaction.category} • {new Date(transaction.date).toLocaleDateString()}
+                        {transaction.wallet_id && (
+                          <span> • {getWalletName(transaction.wallet_id)}</span>
+                        )}
                       </div>
                     </div>
                   </div>

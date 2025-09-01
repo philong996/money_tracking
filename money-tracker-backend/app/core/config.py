@@ -6,7 +6,7 @@ class Settings:
     
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql+psycopg2://postgres:postgres@localhost/money_tracker"
+        "postgresql+psycopg2://postgres:postgres@localhost:5433/money_tracker"
     )
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     ALGORITHM: str = "HS256"

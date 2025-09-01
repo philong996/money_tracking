@@ -16,5 +16,7 @@ class Transaction(Base):
     date = Column(DateTime)
     created_at = Column(DateTime, default=datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.id"))
+    wallet_id = Column(Integer, ForeignKey("wallets.id"))
     
     owner = relationship("User", back_populates="transactions")
+    wallet = relationship("Wallet", back_populates="transactions")
